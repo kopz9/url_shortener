@@ -4,6 +4,9 @@ import com.example.demo.controller.dto.ShortenUrlRequest;
 import com.example.demo.controller.dto.ShortenUrlResponse;
 import com.example.demo.entities.UrlEntity;
 import com.example.demo.repository.UrlRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -24,6 +27,11 @@ public class UrlController {
     this.urlRepository = urlRepository;
   }
 
+  @Operation(description = "Recebe uma URL pelo body e retorna ela encurtada")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Retorna a URL encurtada") ,
+    @ApiResponse(responseCode = "400", description = "Formato de URL inválidad") ,
+  })
   @PostMapping(value = "/shorten-url")
   public ResponseEntity<ShortenUrlResponse> shortenUrl (@RequestBody ShortenUrlRequest request , HttpServletRequest servletRequest) {
 
@@ -39,6 +47,11 @@ public class UrlController {
     return ResponseEntity.ok(new ShortenUrlResponse(redirectUrl));
   }
 
+  @Operation(description = "Busca no banco de dados a url original usando o ID que foi gerado")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Busca pela URL original no banco de dados") ,
+    @ApiResponse(responseCode = "400", description = "URL não encontrada") ,
+  })
   @GetMapping("{id}")
   public ResponseEntity<Void> redirect (@PathVariable("id") String id) {
 
@@ -51,11 +64,6 @@ public class UrlController {
     HttpHeaders headers = new HttpHeaders();
     headers.setLocation(URI.create(url.get().getFullUrl()));
 
-
     return ResponseEntity.status(HttpStatus.FOUND).headers(headers).build();
-
-
   }
-
-
 }
